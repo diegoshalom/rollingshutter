@@ -1,10 +1,12 @@
-
-close all
-clear all
+function RollingShutter
+%Simulating a rolling shutter in matlab with the webcam
+%
+%
 
 % Create a video input object.
 vid = videoinput('winvideo');
-% vid = videoinput('winvideo',1,'I420_352x288');
+% vid = videoinput('winvideo', 1, 'I420_176x144');
+%vid = videoinput('winvideo', 1, 'I420_320x240');
 
 % Create a figure window. This example turns off the default
 % toolbar and menubar in the figure.
@@ -14,23 +16,23 @@ hFig = figure('Toolbar','none',...
        'Name','My Custom Preview GUI');
 
 % Set up the push buttons
-uicontrol('String', 'Start Preview',...
-    'Callback', 'preview(vid)',...
-    'Units','normalized',...
-    'Position',[0 0 0.15 .07]);
-uicontrol('String', 'Stop Preview',...
-    'Callback', 'stoppreview(vid)',...
-    'Units','normalized',...
-    'Position',[.17 0 .15 .07]);
-uicontrol('String', 'Close',...
-    'Callback', 'close(gcf)',...
-    'Units','normalized',...
-    'Position',[0.34 0 .15 .07]);
+% % % uicontrol('String', 'Start Preview',...
+% % %     'Callback', 'tic;preview(vid)',...
+% % %     'Units','normalized',...
+% % %     'Position',[0 0 0.15 .07]);
+% % % uicontrol('String', 'Stop Preview',...
+% % %     'Callback', 'stoppreview(vid)',...
+% % %     'Units','normalized',...
+% % %     'Position',[.17 0 .15 .07]);
+% % % uicontrol('String', 'Close',...
+% % %     'Callback', 'close(gcf)',...
+% % %     'Units','normalized',...
+% % %     'Position',[0.34 0 .15 .07]);
 
 % Create the text label for the timestamp
 hTextLabel = uicontrol('style','text','String','Timestamp', ...
-    'Units','normalized',...
-    'Position',[0.85 -.04 .15 .08]);
+    'Units','pixels',...
+    'Position',[1 1 75 60]);
 
 % Create the image object in which you want to
 % display the video preview data.
@@ -46,11 +48,7 @@ hImage = image( zeros(imHeight, imWidth, nBands) );
 figSize = get(hFig,'Position');
 figWidth = figSize(3);
 figHeight = figSize(4);
- set(gca,'unit','normalized','position',[.1 .1 .8 .8]);
-% set(gca,'unit','pixels',...
-%         'position', [ ((figWidth - imWidth)/2)... 
-%                     ((figHeight - imHeight)/2)...
-%                       imWidth imHeight ]);
+ set(gca,'unit','normalized','position',[.0 .0 1 1]);
 
 % Set up the update preview window function.
 setappdata(hImage,'UpdatePreviewWindowFcn',@mypreview_fcn);
@@ -59,8 +57,13 @@ setappdata(hImage,'UpdatePreviewWindowFcn',@mypreview_fcn);
 setappdata(hImage,'HandleToTimestampLabel',hTextLabel);
 
 %Create empty matrix with all succesive images
-setappdata(hImage,'matrix',zeros(imHeight,imHeight, imWidth, nBands,'uint8'))
+matrix=struct([]);
+matrix(1).image=zeros(imHeight, imWidth, nBands,'uint8');
+matrix(2:imHeight)=matrix(1);
+setappdata(hImage,'matrix',matrix);
 
+tic
+%start preview
 preview(vid, hImage);
 
-
+end

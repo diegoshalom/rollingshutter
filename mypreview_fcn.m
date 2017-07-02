@@ -1,13 +1,12 @@
-function mypreview_fcn(obj,event,hImage)
+function mypreview_fcn(obj,event,hImage) %#ok<INUSL>
 % Example update preview window function.
 
-persistent pos;
-
-if isempty(pos) 
-    pos=1;
+persistent frame;% pos is the number of current frame
+if isempty(frame) 
+    frame=0;
 end
 
-persistent im;
+persistent im;% the image to be presented. initalized only once.
 if isempty(im) 
     im=uint8(nan(size(event.Data)));
 end
@@ -15,40 +14,32 @@ end
 %save current image in the matrix
 imHeight=size(event.Data,1);
 matrix=getappdata(hImage,'matrix');
-current=1+mod(pos,imHeight);
-
-%ESTO ES RE LENTO. lo lento es el indexing
-%podria  hacerlo con sub2ind, calculando las posiciones 
-% de los indices una sola vez, guardando persistente, y
-%sumando lo correspondiente a current. 
-matrix(current,:,:,:)=event.Data;
-
-
+current=1+mod(frame,imHeight);
+matrix(current).image=event.Data;
 setappdata(hImage,'matrix',matrix);
-pos=pos+1;
+frame=frame+1;
 
-
-% Build Rolling Shutter image
+% Build Rolling Shutter image 
 for j=1:imHeight
-    currentline=1+imHeight-j;
-    diagonalFrame=1+mod(pos+j,imHeight);
-    im(currentline,:,:)=matrix(diagonalFrame,currentline,:,:);
+    whichFrame=1+mod(frame+j-1,imHeight);
+    currentline=imHeight-(j-1);
+    im(currentline,:,:)=matrix(whichFrame).image(currentline,:,:);
 end
 
-% % Build Rolling Shutter image (2 lines)
-% for j=1:2:imHeight    
-%     currentline=1+imHeight-j;
-%     diagonalFrame=1+mod(pos+j,imHeight);
-%     im(currentline,:,:)=matrix(diagonalFrame,currentline,:,:);
-% 
-%     currentline=1+imHeight-j-1;
-%     diagonalFrame=1+mod(pos+j,imHeight);
-%     im(currentline,:,:)=matrix(diagonalFrame,currentline,:,:);
-% end
-
+% % % Intento de hacer de a varias lineas, pero no me funciona como yo % queria
+% % nlines=1;
+% % for j=1:nlines:imHeight
+% %     for k=1:nlines        
+% %         whichFrame=1+mod(frame+j-1,imHeight);
+% %         currentline=imHeight-(j-1)-(k-1);
+% %         im(currentline,:,:)=matrix(whichFrame).image(currentline,:,:);
+% %     end
+% % end
 
 % Get timestamp for frame.
 tstampstr = event.Timestamp;
+tstampstr = sprintf('%s\n%2.1fs\n%dframes\n%2.1ffps ',event.Timestamp,toc,frame,frame/toc);
+
 
 % Get handle to text label uicontrol.
 ht = getappdata(hImage,'HandleToTimestampLabel');
@@ -57,7 +48,7 @@ ht = getappdata(hImage,'HandleToTimestampLabel');
 set(ht,'String',tstampstr);
 
 % Display image ACTUAL data.
-%set(hImage, 'CData', event.Data)
+% set(hImage, 'CData', event.Data)
 
 % Display image ROLLING SHUTTER data.
 set(hImage, 'CData', im)
