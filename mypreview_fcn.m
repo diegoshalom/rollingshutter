@@ -2,8 +2,10 @@ function mypreview_fcn(obj,event,hImage) %#ok<INUSL>
 % Example update preview window function.
 
 persistent frame;% pos is the number of current frame
-if isempty(frame) 
+if get(hImage,'UserData')==0
+    set(hImage,'UserData','')
     frame=0;
+    tic
 end
 
 persistent im;% the image to be presented. initalized only once.
@@ -52,3 +54,5 @@ set(ht,'String',tstampstr);
 
 % Display image ROLLING SHUTTER data.
 set(hImage, 'CData', im)
+
+end

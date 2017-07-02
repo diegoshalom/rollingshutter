@@ -14,7 +14,7 @@ hFig = figure('Toolbar','none',...
        'Menubar', 'none',...
        'NumberTitle','Off',...
        'Name','My Custom Preview GUI');
-
+   
 % Set up the push buttons
 % % % uicontrol('String', 'Start Preview',...
 % % %     'Callback', 'tic;preview(vid)',...
@@ -62,7 +62,9 @@ matrix(1).image=zeros(imHeight, imWidth, nBands,'uint8');
 matrix(2:imHeight)=matrix(1);
 setappdata(hImage,'matrix',matrix);
 
-tic
+%to reset the frame counter in each run
+set(hImage,'UserData',0)
+
 %start preview
 preview(vid, hImage);
 
