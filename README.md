@@ -19,4 +19,5 @@ En mi compu corre a unos 25fps. Por lo que si la resolución es 160x120, tiene 1
 Se podria implementar que en cada actualizacion tome mas de una linea de cada frame, por lo que tardaria menos a resoluciones altas. intentí implementarlo pero no me salió. habria que trabajar un poco mas.
 
 ### Versiones:
-A mi me funciona bien la webcam en Matlab 2013a 32, pero no me funciona en 2015a 64, por la webcam. No se si es por los 64bit, o es la version mas nueva.
+En versiones hasta Matlab 2013b funciona bien.
+A partir de 2014a cambiaron la manera de hacer andar la camara, los drivers no vienen por default. Hay que instalar  "osgenericvideointerface.mlpkginstall" haciendo doble click en el file explorer de Matlab (pide login y pass de MatWorks).
