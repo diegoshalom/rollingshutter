@@ -31,14 +31,22 @@ try
     %     currentline=imHeight-(j-1);
     %     im(currentline,:,:)=matrix(whichFrame).image(currentline,:,:);
     % end
-
     
+    direction='up';
+
     %Build Rolling Shutter image, many lines at a time
     for j=1:imHeight
-        whichFrame=1+mod(floor(frame+(j-1)/scanspeed),numImages);
-        currentline=imHeight-(j-1);
+        whichFrame=1+mod(floor(frame+(j-1)/scanspeed),numImages);        
+        switch direction
+            case 'down'
+                currentline=imHeight-(j-1);            
+            case 'up'        
+                currentline=j;
+            otherwise
+                currentline=imHeight-(j-1);            
+        end
         im(currentline,:,:)=matrix(whichFrame).image(currentline,:,:);
-    end
+    end    
 
     %image
     setappdata(hImage,'im',im);
