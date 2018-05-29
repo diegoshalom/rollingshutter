@@ -21,7 +21,7 @@ end
 str = DEVLIST(devnum).SupportedFormats;
 [formatnum,ok] = listdlg('PromptString','Select a Format:',...
                 'SelectionMode','single',...
-                'ListString',str);
+                'ListString',str,'InitialValue',length(str));
 
 if ok==0
     out=[];

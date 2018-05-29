@@ -9,6 +9,16 @@ warning('off',msgId);
 %choose device and format
 out=DeviceSelect;
 
+%choose direction
+directions={'up' 'down' 'left' 'right'};
+[inddirection ,ok] = listdlg('PromptString','Select direction:',...
+                'SelectionMode','single',...
+                'ListString',directions,'InitialValue',2);
+if ok==0
+    return
+end            
+direction=directions{inddirection};
+
 if isempty(out)
     disp('No device detected or selected')
     disp('If webcam is connected, you might need to install support package')
@@ -83,10 +93,18 @@ setappdata(hImage,'UpdatePreviewWindowFcn',@mypreview_fcn);
 % Make handle to text label available to update function.
 setappdata(hImage,'HandleToTimestampLabel',hTextLabel);
 
+% Make direction available
+setappdata(hImage,'direction',direction);
+
 %Create empty matrix with all succesive images
 matrix=struct([]);
 matrix(1).image=zeros(imHeight, imWidth, nBands,'uint8');
-matrix(2:imHeight)=matrix(1);
+switch direction
+    case {'up' 'down'}
+        matrix(2:imHeight)=matrix(1);        
+     case {'left' 'right'}
+        matrix(2:imWidth)=matrix(1);        
+end
 setappdata(hImage,'matrix',matrix);
 
 %set scanspeed, image and frame number

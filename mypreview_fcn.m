@@ -3,8 +3,6 @@ function mypreview_fcn(obj,event,hImage) %#ok<INUSL>
 
 assignin('base','hImage',hImage);
 
-
-
 try
     % number of lines per update
     scanspeed=getappdata(hImage,'scanspeed');
@@ -15,10 +13,18 @@ try
     %image
     im=getappdata(hImage,'im');
 
-
+    %direction
+    direction = getappdata(hImage,'direction');
+    
     %save current image in the matrix
     imHeight=size(event.Data,1);
-    numImages=floor(size(event.Data,1)/scanspeed);
+    imWidth=size(event.Data,2);
+    switch direction
+        case {'up' 'down'}
+            numImages=floor(imHeight/scanspeed);
+         case {'left' 'right'}
+            numImages=floor(imWidth/scanspeed);
+    end
     matrix=getappdata(hImage,'matrix');
     current=1+mod(frame,numImages);
     matrix(current).image=event.Data;
@@ -30,22 +36,32 @@ try
     %     whichFrame=1+mod(frame+j-1,imHeight);
     %     currentline=imHeight-(j-1);
     %     im(currentline,:,:)=matrix(whichFrame).image(currentline,:,:);
-    % end
-    
-    direction='up';
+    % end        
 
     %Build Rolling Shutter image, many lines at a time
-    for j=1:imHeight
-        whichFrame=1+mod(floor(frame+(j-1)/scanspeed),numImages);        
-        switch direction
-            case 'down'
-                currentline=imHeight-(j-1);            
-            case 'up'        
-                currentline=j;
-            otherwise
-                currentline=imHeight-(j-1);            
-        end
-        im(currentline,:,:)=matrix(whichFrame).image(currentline,:,:);
+    switch direction
+        case {'up' 'down'}
+            for j=1:imHeight
+                whichFrame=1+mod(floor(frame+(j-1)/scanspeed),numImages);        
+                switch direction
+                    case 'down'
+                        currentline=imHeight-(j-1);            
+                    case 'up'        
+                        currentline=j;
+                end
+                im(currentline,:,:)=matrix(whichFrame).image(currentline,:,:);
+            end
+        case  {'left' 'right'}
+            for j=1:imWidth
+                whichFrame=1+mod(floor(frame+(j-1)/scanspeed),numImages);        
+                switch direction
+                    case 'right'
+                        currentline=imWidth-(j-1);            
+                    case 'left'        
+                        currentline=j;
+                end
+                im(:,currentline,:)=matrix(whichFrame).image(:,currentline,:);
+            end    
     end    
 
     %image
